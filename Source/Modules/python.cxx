@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------------------
- * This file is part of SWIG, which is licensed as a whole under version 3 
+ * This file is part of SWIG, which is licensed as a whole under version 3
  * (or any later version) of the GNU General Public License. Some additional
  * terms also apply to certain portions of SWIG. The full details of the SWIG
  * license and copyrights can be found in the LICENSE and COPYRIGHT files
@@ -553,12 +553,12 @@ public:
    * ------------------------------------------------------------ */
 
   virtual int top(Node *n) {
-    /* check if directors are enabled for this module.  note: this 
+    /* check if directors are enabled for this module.  note: this
      * is a "master" switch, without which no director code will be
      * emitted.  %feature("director") statements are also required
      * to enable directors for individual classes or methods.
      *
-     * use %module(directors="1") modulename at the start of the 
+     * use %module(directors="1") modulename at the start of the
      * interface file to enable director generation.
      */
     String *mod_docstring = NULL;
@@ -858,6 +858,12 @@ public:
       if (modern || !classic) {
 	Printv(f_shadow, "try:\n", tab4, "_swig_property = property\n", "except NameError:\n", tab4, "pass  # Python < 2.2 doesn't have 'property'.\n\n", NULL);
       }
+
+      Printv(f_shadow, "if hasattr(object, '__getattr__'):\n", NULL);
+      Printv(f_shadow, tab4, "_swig_obj_getattr = object.__getattr__\n", NULL);
+      Printv(f_shadow, "else:\n", NULL);
+      Printv(f_shadow, tab4, "_swig_obj_getattr = object.__getattribute__\n", NULL);
+
       /* if (!modern) */
       /* always needed, a class can be forced to be no-modern, such as an exception */
       {
@@ -896,7 +902,7 @@ public:
 	       tab4, "method = class_type.__swig_getmethods__.get(name, None)\n",
 	       tab4, "if method:\n", tab8, "return method(self)\n",
 	       tab4, "if (not static):\n",
-	       tab4, tab4, "return object.__getattr__(self, name)\n",
+	       tab4, tab4, "return _swig_obj_getattr(self, name)\n",
 	       tab4, "else:\n",
 	       tab4, tab4, "raise AttributeError(name)\n\n",
 	       "def _swig_getattr(self, class_type, name):\n", tab4, "return _swig_getattr_nondynamic(self, class_type, name, 0)\n\n", NIL);
@@ -915,7 +921,7 @@ public:
 		 "try:\n",
 //               "    _object = types.ObjectType\n",
 		 tab4, "_object = object\n", tab4, "_newclass = 1\n", "except AttributeError:\n", tab4, "class _object:\n", tab8, "pass\n", tab4, "_newclass = 0\n",
-//                 "del types\n", 
+//                 "del types\n",
 		 "\n\n", NIL);
 	}
       }
@@ -1653,7 +1659,7 @@ public:
     Setattr(n, "python:docstring", doc);
     Setattr(n, "python:autodoc", autodoc);
     return doc;
-  }   
+  }
 
   /* ------------------------------------------------------------
    * cdocstring()
@@ -1691,7 +1697,7 @@ public:
    *
    * For functions that have not had nameless parameters set in the Language class.
    *
-   * Inputs: 
+   * Inputs:
    *   plist - entire parameter list
    *   arg_offset - argument number for first parameter
    * Side effects:
@@ -2188,7 +2194,7 @@ public:
    * is_real_overloaded()
    *
    * Check if the function is overloaded, but not just have some
-   * siblings generated due to the original function have 
+   * siblings generated due to the original function have
    * default arguments.
    * ------------------------------------------------------------ */
   bool is_real_overloaded(Node *n) {
@@ -2201,7 +2207,7 @@ public:
     while (i) {
       Node *nn = Getattr(i, "defaultargs");
       if (nn != h) {
-	/* Check if overloaded function has defaultargs and 
+	/* Check if overloaded function has defaultargs and
 	 * pointed to the first overloaded. */
 	return true;
       }
@@ -2218,7 +2224,7 @@ public:
    * reuse make_autodocParmList() to do so.
    * ------------------------------------------------------------ */
   String *make_pyParmList(Node *n, bool in_class, bool is_calling, int kw) {
-    /* Get the original function for a defaultargs copy, 
+    /* Get the original function for a defaultargs copy,
      * see default_arguments() in parser.y. */
     Node *nn = Getattr(n, "defaultargs");
     if (nn)
@@ -2963,9 +2969,9 @@ public:
     }
 
     /* if the object is a director, and the method call originated from its
-     * underlying python object, resolve the call by going up the c++ 
-     * inheritance chain.  otherwise try to resolve the method in python.  
-     * without this check an infinite loop is set up between the director and 
+     * underlying python object, resolve the call by going up the c++
+     * inheritance chain.  otherwise try to resolve the method in python.
+     * without this check an infinite loop is set up between the director and
      * shadow class method calls.
      */
 
@@ -3059,7 +3065,7 @@ public:
       //        base class pointers!
 
       /* New addition to unwrap director return values so that the original
-       * python object is returned instead. 
+       * python object is returned instead.
        */
 #if 1
       int unwrap = 0;
@@ -3551,7 +3557,7 @@ public:
   }
 
 
-  /* ------------------------------------------------------------ 
+  /* ------------------------------------------------------------
    * nativeWrapper()
    * ------------------------------------------------------------ */
 
@@ -3586,7 +3592,7 @@ public:
   /* ---------------------------------------------------------------
    * classDirectorMethod()
    *
-   * Emit a virtual director method to pass a method call on to the 
+   * Emit a virtual director method to pass a method call on to the
    * underlying Python object.
    * ** Moved down due to gcc-2.96 internal error **
    * --------------------------------------------------------------- */
@@ -4731,7 +4737,7 @@ public:
     int oldshadow = shadow;
     int use_director = Swig_directorclass(n);
 
-    /* 
+    /*
      * If we're wrapping the constructor of a C++ director class, prepend a new parameter
      * to receive the scripting language object (e.g. 'self')
      *
@@ -5085,7 +5091,7 @@ public:
 
   /* ------------------------------------------------------------
    * insertDirective()
-   * 
+   *
    * Hook for %insert directive.   We're going to look for special %shadow inserts
    * as a special case so we can do indenting correctly
    * ------------------------------------------------------------ */
@@ -5166,7 +5172,7 @@ public:
 /* ---------------------------------------------------------------
  * classDirectorMethod()
  *
- * Emit a virtual director method to pass a method call on to the 
+ * Emit a virtual director method to pass a method call on to the
  * underlying Python object.
  *
  * ** Moved it here due to internal error on gcc-2.96 **
@@ -5264,7 +5270,7 @@ int PYTHON::classDirectorMethod(Node *n, Node *parent, String *super) {
   Append(w->def, " {");
   Append(declaration, ";\n");
 
-  /* declare method return value 
+  /* declare method return value
    * if the return value is a reference or const reference, a specialized typemap must
    * handle it, including declaration of c_result ($result).
    */
@@ -5416,7 +5422,7 @@ int PYTHON::classDirectorMethod(Node *n, Node *parent, String *super) {
 	  } else {
 	    Wrapper_add_localv(w, source, "swig::SwigVar_PyObject", source, "= 0", NIL);
 	    Printf(wrap_args, "%s = SWIG_InternalNewPointerObj(%s, SWIGTYPE%s, 0);\n", source, nonconst, mangle);
-	    //Printf(wrap_args, "%s = SWIG_NewPointerObj(%s, SWIGTYPE_p_%s, 0);\n", 
+	    //Printf(wrap_args, "%s = SWIG_NewPointerObj(%s, SWIGTYPE_p_%s, 0);\n",
 	    //       source, nonconst, base);
 	    Printv(arglist, source, NIL);
 	  }
